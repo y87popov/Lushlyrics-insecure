@@ -1,5 +1,5 @@
 from django.db import models
-
+from django.contrib.auth.models import AbstractUser
 
 # Create your models here.
 class playlist_user(models.Model):
@@ -21,3 +21,22 @@ class playlist_song(models.Model):
       return f'Title = {self.song_title}, Date = {self.song_date_added}'
 
 
+class CustomUser(AbstractUser):
+    # You can add additional fields here if needed
+    email = models.EmailField(unique=True)
+
+    # Add related_name to prevent conflicts with the default User model
+    groups = models.ManyToManyField(
+        'auth.Group',
+        related_name='customuser_set',  # Custom reverse relation name
+        blank=True
+    )
+    
+    user_permissions = models.ManyToManyField(
+        'auth.Permission',
+        related_name='customuser_set',  # Custom reverse relation name
+        blank=True
+    )
+
+    def __str__(self):
+        return self.username
