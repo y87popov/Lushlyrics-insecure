@@ -31,8 +31,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'main',  # Replace with your actual app name
-    
+    'main',
 ]
 
 # Specify the custom user model
@@ -55,7 +54,10 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'main.middleware.RestrictAnonymousAccessMiddleware',  # Add your custom middleware here
 ]
+
+
 
 ROOT_URLCONF = 'youtify.urls'
 

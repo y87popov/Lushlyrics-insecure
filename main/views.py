@@ -6,9 +6,32 @@ from django.urls.base import reverse
 from django.contrib.auth import authenticate,login,logout
 from youtube_search import YoutubeSearch
 import json
+from django.contrib import messages
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.views.generic import TemplateView
+from django.contrib.auth.decorators import login_required
+from django.urls import reverse
+
 # import cardupdate
 
+class RestrictedView(LoginRequiredMixin, TemplateView):
+    template_name = 'restricted_page.html'
+    login_url = '/login/'  # Redirect to the login page if not logged in
+    redirect_field_name = 'next'  # Redirect back to the original page after login
 
+class RestrictAnonymousAccessMiddleware:
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        allowed_urls = [reverse('login'), reverse('signup')]  # Add public URLs here
+        if not request.user.is_authenticated and request.path not in allowed_urls:
+            return redirect('login')
+        return self.get_response(request)
+
+@login_required(login_url='/login/')
+def restricted_view(request):
+    return render(request, 'restricted_page.html')
 
 f = open('card.json', 'r')
 CONTAINER = json.load(f)
@@ -72,3 +95,25 @@ def add_playlist(request):
         cur_user.playlist_song_set.create(song_title=request.POST['title'],song_dur=request.POST['duration'],
         song_albumsrc = song__albumsrc,
         song_channel=request.POST['channel'], song_date_added=request.POST['date'],song_youtube_id=request.POST['songid'])
+
+def login_view(request):
+    if request.method == 'POST':
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+        user = authenticate(request, username=username, password=password)
+        if user is not None:
+            login(request, user)
+            return redirect('default')  # Replace 'default' with your home page
+        else:
+            messages.error(request, 'Invalid username or password.')
+    return render(request, 'login.html')
+
+def logout_view(request):
+    logout(request)
+    return redirect('login')
+
+def signup_view(request):
+    if request.method == 'POST':
+        # Handle signup logic here
+        pass
+    return render(request, 'signup.html')  # Make sure this template exists
