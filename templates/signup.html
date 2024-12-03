@@ -36,42 +36,30 @@
     <div class="signup_body">
         <form class="login_form" method='POST' enctype="multipart/form-data">
             {% csrf_token %}
-
             <span class='label signup-title center-align'>Sign up for free to start listening.</span>
-            <label for="sign-up-username" class="label">
-                What's your name?{% if not username %}
-                <span style="color:#f79862;">Username already exists</span>
-            {% endif %}
-            </label>
-
-            <input type="text" class="form_input" name="username" pattern="[A-Za-z]+" placeholder="Enter your name." required>
-
-
-            <label for="sign-up-email" class="label">
-                What's your email?{% if not email %}
-                <span style="color:#f79862;">Email already exists</span>
-            {% endif %}
-            </label>
-
-            <input type="email" class="form_input" name="email" placeholder="Enter your email." required>
-
-
-            <label for="sign-up-pwd" class="label">
-                Create a password
-            </label>
-            <input type="password" class="form_input" id="pwd" name="password" placeholder="Create a password."
-                required>
-
-            <label for="sign-up-cpwd" class="label">
-                Confirm your password
-            </label>
-            <input type="password" class="form_input" id="cpwd" name="confirm-password" oninput="checkPassword(this)"
-                placeholder="Re-type your password" required>
-
+        
+            {{ form.non_field_errors }}
+        
+            <label for="sign-up-username" class="label">What's your name?</label>
+            {{ form.username.errors }}
+            <input type="text" id="sign-up-username" class="form_input" name="username" placeholder="Enter your name." required>
+        
+            <label for="sign-up-email" class="label">What's your email?</label>
+            <input type="email" id="sign-up-email" class="form_input" name="email" placeholder="Enter your email." required>
+        
+            <label for="sign-up-pwd" class="label">Create a password</label>
+            {{ form.password1.errors }}
+            <input type="password" id="pwd" class="form_input" name="password1" placeholder="Create a password." required>
+        
+            <label for="sign-up-cpwd" class="label">Confirm your password</label>
+            {{ form.password2.errors }}
+            <input type="password" id="cpwd" class="form_input" name="password2" oninput="checkPassword(this)" placeholder="Re-type your password" required>
+        
             <button class='btn btn_log_in' type="submit">Sign up</button>
             <div class="divider"></div>
             <p class='label center-align'>Already have an account? <a href="/login">Log in</a>.</p>
         </form>
+        
     </div>
 
 </body>

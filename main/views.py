@@ -11,6 +11,10 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic import TemplateView
 from django.contrib.auth.decorators import login_required
 from django.urls import reverse
+from django.contrib.auth.forms import UserCreationForm  # Import Django's built-in user creation form
+from django.contrib.auth.forms import UserCreationForm  # Import Django's built-in user creation form
+from django.contrib import messages
+
 
 # import cardupdate
 
@@ -103,10 +107,11 @@ def login_view(request):
         user = authenticate(request, username=username, password=password)
         if user is not None:
             login(request, user)
-            return redirect('default')  # Replace 'default' with your home page
+            return redirect('default')  # Make sure to redirect to the correct home page or default view
         else:
             messages.error(request, 'Invalid username or password.')
     return render(request, 'login.html')
+
 
 def logout_view(request):
     logout(request)
@@ -114,6 +119,28 @@ def logout_view(request):
 
 def signup_view(request):
     if request.method == 'POST':
-        # Handle signup logic here
-        pass
-    return render(request, 'signup.html')  # Make sure this template exists
+        print("Received POST request")  # Debug line
+        form = UserCreationForm(request.POST)
+        if form.is_valid():
+            print("Form is valid")  # Debug line
+            user = form.save()
+            username = form.cleaned_data.get('username')
+            password = form.cleaned_data.get('password1')
+            user = authenticate(request, username=username, password=password)
+            if user is not None:
+                print("User authenticated successfully")  # Debug line
+                login(request, user)
+                return redirect('default')  # Redirect to the home page
+            else:
+                print("User authentication failed after signup")  # Debug line
+                messages.error(request, 'Unable to authenticate user after signup.')
+        else:
+            print("Form is not valid:", form.errors)  # Debug line
+            messages.error(request, 'There was an error creating your account. Please try again.')
+    else:
+        form = UserCreationForm()
+
+    return render(request, 'signup.html', {'form': form})
+
+
+
