@@ -109,7 +109,7 @@ USE_TZ = True
 
 # Static files configuration
 STATIC_URL = '/static/'
+STATIC_ROOT = BASE_DIR / 'staticfiles'  # or your preferred location
 STATICFILES_DIRS = [
-    BASE_DIR / "static",  # Using Path object for static files directory
-    '/var/www/static/',
+    BASE_DIR / 'static',  # Add your custom static directories here
 ]
