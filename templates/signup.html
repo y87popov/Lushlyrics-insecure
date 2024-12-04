@@ -36,6 +36,7 @@
     <div class="signup_body">
         <form class="login_form" method='POST' enctype="multipart/form-data">
             {% csrf_token %}
+        
             <span class='label signup-title center-align'>Sign up for free to start listening.</span>
         
             {{ form.non_field_errors }}
@@ -45,6 +46,7 @@
             <input type="text" id="sign-up-username" class="form_input" name="username" placeholder="Enter your name." required>
         
             <label for="sign-up-email" class="label">What's your email?</label>
+            {{ form.email.errors }}
             <input type="email" id="sign-up-email" class="form_input" name="email" placeholder="Enter your email." required>
         
             <label for="sign-up-pwd" class="label">Create a password</label>
@@ -53,13 +55,12 @@
         
             <label for="sign-up-cpwd" class="label">Confirm your password</label>
             {{ form.password2.errors }}
-            <input type="password" id="cpwd" class="form_input" name="password2" oninput="checkPassword(this)" placeholder="Re-type your password" required>
+            <input type="password" id="cpwd" class="form_input" name="password2" placeholder="Re-type your password" required>
         
             <button class='btn btn_log_in' type="submit">Sign up</button>
             <div class="divider"></div>
             <p class='label center-align'>Already have an account? <a href="/login">Log in</a>.</p>
-        </form>
-        
+        </form>        
     </div>
 
 </body>

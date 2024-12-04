@@ -11,9 +11,11 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic import TemplateView
 from django.contrib.auth.decorators import login_required
 from django.urls import reverse
-from django.contrib.auth.forms import UserCreationForm  # Import Django's built-in user creation form
-from django.contrib.auth.forms import UserCreationForm  # Import Django's built-in user creation form
 from django.contrib import messages
+import random
+import string
+from django.urls import resolve
+from .forms import CustomUserCreationForm
 
 
 # import cardupdate
@@ -28,10 +30,32 @@ class RestrictAnonymousAccessMiddleware:
         self.get_response = get_response
 
     def __call__(self, request):
-        allowed_urls = [reverse('login'), reverse('signup')]  # Add public URLs here
-        if not request.user.is_authenticated and request.path not in allowed_urls:
+        # Allowed view names that should be accessible without authentication
+        allowed_view_names = ['login', 'signup', 'recover_password']
+
+        try:
+            # Resolve the current view name from the request path
+            resolved_view = resolve(request.path_info)
+            current_view_name = resolved_view.url_name
+            print(f"Resolved view name: {current_view_name}")
+        except Exception as e:
+            # If resolving fails, print the error and redirect to login
+            print(f"Error resolving view: {e}")
             return redirect('login')
+
+        # Check if the user is authenticated or the current view is in allowed views
+        if not request.user.is_authenticated:
+            if current_view_name not in allowed_view_names:
+                print(f"Redirecting to login because '{current_view_name}' is not in allowed view names.")
+                return redirect('login')
+            else:
+                print(f"Access allowed for view '{current_view_name}'.")
+        else:
+            print(f"User is authenticated, accessing '{current_view_name}'.")
+
         return self.get_response(request)
+
+
 
 @login_required(login_url='/login/')
 def restricted_view(request):
@@ -120,7 +144,7 @@ def logout_view(request):
 def signup_view(request):
     if request.method == 'POST':
         print("Received POST request")  # Debug line
-        form = UserCreationForm(request.POST)
+        form = CustomUserCreationForm(request.POST)
         if form.is_valid():
             print("Form is valid")  # Debug line
             user = form.save()
@@ -138,9 +162,41 @@ def signup_view(request):
             print("Form is not valid:", form.errors)  # Debug line
             messages.error(request, 'There was an error creating your account. Please try again.')
     else:
-        form = UserCreationForm()
+        form = CustomUserCreationForm()
 
     return render(request, 'signup.html', {'form': form})
 
+
+def recover_password_view(request):
+    new_password = None  # Initialize to None at the start
+    if request.method == 'POST':
+        email = request.POST.get('email')
+        print(f"Received password recovery request for email: {email}")  # Debug line
+
+        try:
+            # Get the user with the given email
+            user = User.objects.get(email=email)
+            print(f"User found: {user.username}")  # Debug line
+
+            # Generate a new random password
+            new_password = ''.join(random.choices(string.ascii_letters + string.digits, k=10))
+            print(f"Generated new password: {new_password}")  # Debug line
+
+            # Set the new password and save the user object
+            user.set_password(new_password)
+            user.save()
+            print(f"Password updated successfully for user: {user.username}")  # Debug line
+
+            # Print the new password in the console for showcasing purposes
+            print(f"New password for user {user.username} is: {new_password}")
+
+            # Provide feedback to the user
+            messages.success(request, 'A new password has been generated and sent to your email (check console output).')
+        except User.DoesNotExist:
+            # Display an error message if the user doesn't exist
+            print("No user found with that email address")  # Debug line
+            messages.error(request, 'No account with this email address was found.')
+
+    return render(request, 'recover_password.html', {'new_password': new_password})
 
 

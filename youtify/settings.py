@@ -54,7 +54,8 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'main.middleware.RestrictAnonymousAccessMiddleware',  # Add your custom middleware here
+    
+    'main.views.RestrictAnonymousAccessMiddleware',
 ]
 
 
@@ -113,3 +114,4 @@ STATIC_ROOT = BASE_DIR / 'staticfiles'  # or your preferred location
 STATICFILES_DIRS = [
     BASE_DIR / 'static',  # Add your custom static directories here
 ]
+
